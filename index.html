@@ -10,15 +10,23 @@
     <script src="underscore-min.js" type="text/javascript"></script>
     <script src="backbone-min.js" type="text/javascript"></script>
     <script src="diggernautWDC.js" type="text/javascript"></script>
+    <style>
+    #logo {
+        padding-top: 10px;
+    }
+    </style>
 </head>
 
 <body>
     <div class="container container-table">
         <div class="row vertical-center-row">
+            <div class="text-center col-md-4 col-md-offset-4" id="logo">
+                <img src="diggernaut_tableau.png" />
+            </div>
             <div class="text-center col-md-4 col-md-offset-4" id="loadDiggersPanel">
                 <div class="form-group">
                     <label for="api-key">Your Diggernaut <a href="https://www.diggernaut.com/members/settings/api" target="_blank">API key</a></label>
-                    <input type="text" class="form-control" id="apiKey" placeholder="Type your API key" value="8c24f7417dabd81bcc20cfbc3bf1405cdda32c98">
+                    <input type="text" class="form-control" id="apiKey" placeholder="Type your API key">
                 </div>
                 <div class="alert alert-danger apiKeyInvalid" style="display: none;">
                     <strong>Error:</strong> API key you entered is invalid.
@@ -28,7 +36,7 @@
             <div class="text-center col-md-4 col-md-offset-4" id="connectPanel" style="display: none;">
                 <div class="form-group">
                     <label for="api-key">Select a digger</label>
-                    <select id="digger"></select>
+                    <select id="digger" class="form-control"></select>
                 </div>
                 <div class="alert alert-danger apiKeyInvalid" style="display: none;">
                     <strong>Error:</strong> API key you entered is invalid.

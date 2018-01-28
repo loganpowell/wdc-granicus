@@ -87,7 +87,12 @@ var tableauType = function(val) {
                 var data = []
                 for (var i=0; i < response.length; i++) {
                     var flatten = objectFlatten(response[i])
-                    data.push(flatten)
+                    var rec = {}
+                    for (var key in flatten) {
+                        var id = key.replace(/[^A-Za-z0-9_]+/g, '')
+                        rec[id] = flatten[key]
+                    }
+                    data.push(rec)
                 }
                 table.appendRows(data);
                 doneCallback();
