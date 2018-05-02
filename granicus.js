@@ -68,7 +68,7 @@ var tableauType = function(val) {
           }
           var table = {
             id: "Granicus_Subscriptions",
-            alias: `Granicus subscriptions, deletions and bulletins for start_date: ${fnPnewdate} - end_date: ${newdate}`,
+            alias: "Granicus subscriptions, deletions and bulletins for start_date: "+fnPnewdate+" - end_date: "+newdate,
             columns: columns
           }
           schemaCallback([table]);
