@@ -1,174 +1,129 @@
-Backbone.sync = (function(syncFn) {
-    return function(method, model, options) {
-        options = options || {};
-
-        // handle unauthorized error (401)
-        options.error = function(xhr, textStatus, errorThrown) {
-            if (xhr.status === 401) {
-                $('.apiKeyInvalid').show();
-            }
-        };
-
-        return syncFn.apply(this, arguments);
-    };
-})(Backbone.sync);
-
-var objectFlatten = function (data) {
-    var result = {};
-
-    function recurse(cur, prop) {
-        if (Object(cur) !== cur) {
-            result[prop] = cur;
-        } else if (Array.isArray(cur)) {
-            for (var i = 0, l = cur.length; i < l; i++)
-            recurse(cur[i], prop + "[" + i + "]");
-            if (l == 0) result[prop] = [];
-        } else {
-            var isEmpty = true;
-            for (var p in cur) {
-                isEmpty = false;
-                recurse(cur[p], prop ? prop + "_" + p : p);
-            }
-            if (isEmpty && prop) result[prop] = {};
-        }
+(function() {
+    // Create the connector object
+    var myConnector = tableau.makeConnector();
+    let key = ""
+    myConnector.init = function(initCallback) {
+        tableau.authType = tableau.authTypeEnum.basic;
+        key = tableau.connectionData
+        console.log("key: " + key)
+        initCallback();
     }
-    recurse(data, "");
-    return result;
-};
 
-var tableauType = function(val) {
-    if (parseInt(val) == val) return tableau.dataTypeEnum.int;
-    if (parseFloat(val) == val) return tableau.dataTypeEnum.float;
-    if (isFinite(new Date(val).getTime())) return tableau.dataTypeEnum.datetime;
-    return tableau.dataTypeEnum.string;
-};
+    let dateObj = new Date(),
+        month = dateObj.getUTCMonth() + 1, //jan = 0
+        day = dateObj.getUTCDate(),
+        year = dateObj.getUTCFullYear(),
+        newdate = year + "-" + month + "-" + day;
+
+    let fortnightPrior = new Date(Date.now() - 12096e5),
+        fnPmonth = fortnightPrior.getUTCMonth() + 1
+        fnPday = fortnightPrior.getUTCDate(),
+        fnPyear = fortnightPrior.getUTCFullYear(),
+        fnPnewdate = fnPyear + "-" + fnPmonth + "-" + fnPday;
+
+    console.log({
+      "newdate" : newdate,
+      "fnPnewdate" : fnPnewdate
+    })
 
 
-(function () {
-  var myConnector = tableau.makeConnector();
-  myConnector.getSchema = function (schemaCallback) {
-    $.ajax({
-        url: "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date="+newdate+"&start_date="+fnPnewdate+"&page=1",
-        type: "GET",
+    // Define the schema
+    myConnector.getSchema = function(schemaCallback) {
+        var cols = [{
+              id: "code",
+              dataType: tableau.dataTypeEnum.string
+          }, {
+              id: "name",
+              // alias: "Bulletins Sent",
+              dataType: tableau.dataTypeEnum.string
+          }, {
+              id: "bulletins_sent_this_period",
+              // alias: "",
+              dataType: tableau.dataTypeEnum.int
+          }, {
+              id: "bulletins_sent_to_date",
+              // alias: "",
+              dataType: tableau.dataTypeEnum.int
+          }, {
+              id: "new_subscriptions_this_period",
+              // alias: "",
+              dataType: tableau.dataTypeEnum.int
+          }, {
+              id: "new_subscriptions_to_date",
+              // alias: "",
+              dataType: tableau.dataTypeEnum.int
+          }, {
+              id: "visibility",
+              // alias: "",
+              dataType: tableau.dataTypeEnum.string
+          }, {
+              id: "total_subscriptions_to_date",
+              // alias: "",
+              dataType: tableau.dataTypeEnum.int
+          }, {
+              id: "deleted_subscriptions_this_period",
+              // alias: "",
+              dataType: tableau.dataTypeEnum.int
+          }, {
+              id: "deleted_subscriptions_to_date",
+              dataType: tableau.dataTypeEnum.int
+          }]
+;
+
+    var schemas = {
+        id: "Granicus_Subscriptions",
+        alias: `Granicus subscriptions, deletions and bulletins for start_date: ${fnPnewdate} - end_date: ${newdate}`,
+        columns: cols
+    };
+        schemaCallback([schemas]);
+    };
+
+    // Download the data
+    myConnector.getData = function(table, doneCallback) {
+      tableau.log("inside `getData` Key: " + key)
+      fetch(`https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date=${newdate}&start_date=${fnPnewdate}&page=1`, {
         headers: {
           'content-type': 'application/json',
-          'x-auth-token': JSON.parse(tableau.connectionData)['apiKey'],
+          'x-auth-token': key,
           'accept': 'application/hal+json'
-        },
-        success: function(response){
-          var flatten = objectFlatten(response)
-          var columns = []
-          for (var key in flatten) {
-            var id = key.replace(/[^A-Za-z0-9_]+/g, '')
-            columns.push({
-              id: id,
-              alias: key,
-              dataType: tableauType(flatten[key])
-            })
-          }
-          var table = {
-            id: "Granicus_Subscriptions",
-            alias: "Granicus subscriptions, deletions and bulletins for start_date: "+fnPnewdate+" - end_date: "+newdate,
-            columns: columns
-          }
-          schemaCallback([table]);
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            tableau.abortWithError("Unable to get data. Make sure you used proper API key and you have at least one session for selected digger with dataset.");
+         }
+      })
+      .then(r => r.json()).then(json => {
+        let results = json.topic_details
+        tableData = []
+        for (let i = 0, l = results.length; i < l; i++) {
+          tableData.push({
+            "code": results[i].code,
+            "name": results[i].name,
+            "visibility": results[i].visibility,
+            "bulletins_sent_this_period": results[i].bulletins_sent_this_period,
+            "bulletins_sent_to_date": results[i].bulletins_sent_to_date,
+            "deleted_subscriptions_this_period": results[i].deleted_subscriptions_this_period,
+            "deleted_subscriptions_to_date": results[i].deleted_subscriptions_to_date,
+            "new_subscriptions_this_period": results[i].new_subscriptions_this_period,
+            "new_subscriptions_to_date": results[i].new_subscriptions_to_date,
+            "total_subscriptions_to_date": results[i].total_subscriptions_to_date
+          })
         }
-      });
-    };
-    myConnector.getData = function (table, doneCallback) {
-      $.ajax({
-        url: "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date="+newdate+"&start_date="+fnPnewdate+"&page=1",
-        type: "GET",
-        headers: {
-          'content-type': 'application/json',
-          'x-auth-token': JSON.parse(tableau.connectionData)['apiKey'],
-          'accept': 'application/hal+json'
-        },
-        success: function(response){
-          var data = []
-          for (var i=0; i < response.length; i++) {
-            var flatten = objectFlatten(response[i])
-            var rec = {}
-            for (var key in flatten) {
-              var id = key.replace(/[^A-Za-z0-9_]+/g, '')
-              rec[id] = flatten[key]
-            }
-            data.push(rec)
-          }
-          table.appendRows(data);
-          doneCallback();
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-          tableau.abortWithError("Unable to get data. Make sure you used proper API key and you have at least one session for selected digger with dataset.");
-        }
-      });
-    };
+        table.appendRows(tableData)
+        doneCallback()
+      })
+    }
+
     tableau.registerConnector(myConnector);
 
-    var Digger = Backbone.Model.extend();
-    var DiggersCollection = Backbone.Collection.extend({
-      url: 'https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2',
-      model: Digger
-    });
-    var DiggerItem = Backbone.View.extend({
-      tagName: "option",
-      initialize: function(){
-        _.bindAll(this, 'render');
-        this.model.bind('change', this.render);
-      },
-      render: function(){
-        this.$el.attr('value', this.model.get('id')).text(this.model.get('name'));
-        return this;
-      }
-    });
-    var DiggersView = Backbone.View.extend({
-        collection: null,
-        el: 'select#digger',
-        initialize: function(options){
-            this.collection = options.collection;
-            _.bindAll(this, 'render');
-            this.collection.bind('sync', this.render);
-        },
-        render: function(){
-            console.log('render');
-            var element = this.$el;
-            element.empty();
-            this.collection.each(function(item) {
-                var diggerItem = new DiggerItem({
-                    model: item
-                });
-                element.append(diggerItem.render().$el);
-            });
-            $('#loadDataPanel').hide();
-            $('#connectPanel').show();
-            return this;
-        }
-    });
+    // Create event listeners for when the user submits the form
+    $(document).ready(function() {
 
-    $(document).ready(function () {
-        $("#loadData").click(function () {
-            $('.apiKeyInvalid').hide();
-
-            var diggers = new DiggersCollection();
-            var diggersView = new DiggersView({collection: diggers});
-            diggers.fetch({
-                headers: {
-                  'Authorization': 'Token ' + $("#apiKey").val()
-                }
-            });
-
-        });
-
-        $("#connect").click(function () {
-            tableau.connectionName = $('#digger option:selected').text();
-            tableau.connectionData = JSON.stringify({
-                'apiKey': $("#apiKey").val(),
-                'diggerID': $('#digger option:selected').val()
-            });
-            tableau.submit();
+        $("#submitButton").click(function() {
+            var key = $('#key').val();
+            if (key) {
+                tableau.connectionData = key; // Use this variable to pass data to your getSchema and getData functions
+                tableau.connectionName = "Granicus API"; // This will be the data source name in Tableau
+                tableau.submit(); // This sends the connector object to Tableau
+            } else {
+                alert("Enter a valid Granicus API key");
+            }
         });
     });
 })();
