@@ -68,16 +68,16 @@
 
     // Download the data
     myConnector.getData = function(table, doneCallback) {
-        var dateObj = new Date(),
-        var month = dateObj.getUTCMonth() + 1, //jan = 0
-        var day = dateObj.getUTCDate(),
-        var year = dateObj.getUTCFullYear(),
+        var dateObj = new Date()
+        var month = dateObj.getUTCMonth() + 1 //jan = 0
+        var day = dateObj.getUTCDate()
+        var year = dateObj.getUTCFullYear()
         var newdate = year + "-" + month + "-" + day;
 
-        var fortnightPrior = new Date(Date.now() - 12096e5),
+        var fortnightPrior = new Date(Date.now() - 12096e5)
         var fnPmonth = fortnightPrior.getUTCMonth() + 1
-        var fnPday = fortnightPrior.getUTCDate(),
-        var fnPyear = fortnightPrior.getUTCFullYear(),
+        var fnPday = fortnightPrior.getUTCDate()
+        var fnPyear = fortnightPrior.getUTCFullYear()
         var fnPnewdate = fnPyear + "-" + fnPmonth + "-" + fnPday;
         // var dates = tableau.connectionData.split(';')[1];
 
