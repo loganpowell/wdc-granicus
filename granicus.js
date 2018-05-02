@@ -1,11 +1,11 @@
 (function() {
     // Create the connector object
     var myConnector = tableau.makeConnector();
-    // let key = ""
+    let key = ""
     myConnector.init = function(initCallback) {
-        // tableau.authType = tableau.authTypeEnum.basic;
-        // key = tableau.connectionData
-        // console.log("key: " + key)
+        tableau.authType = tableau.authTypeEnum.basic;
+        // tableau.password = tableau.connectionData
+        console.log("tableau.password: " + tableau.password)
         initCallback();
     }
 
@@ -80,12 +80,11 @@
 
     // Download the data
     myConnector.getData = function(table, doneCallback) {
-      let key = tableau.connectionData
-      tableau.log("inside `getData` Key: " + key)
+      tableau.log("inside `getData` tableau.password: " + tableau.password)
       fetch(`https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date=${newdate}&start_date=${fnPnewdate}&page=1`, {
         headers: {
           'content-type': 'application/json',
-          'x-auth-token': key,
+          'x-auth-token': tableau.password,
           'accept': 'application/hal+json'
          }
       })
@@ -119,7 +118,7 @@
         $("#submitButton").click(function() {
             var key = $('#key').val();
             if (key) {
-                tableau.connectionData = key; // Use this variable to pass data to your getSchema and getData functions
+                tableau.password = key; // Use this variable to pass data to your getSchema and getData functions
                 tableau.connectionName = "Granicus API"; // This will be the data source name in Tableau
                 tableau.submit(); // This sends the connector object to Tableau
             } else {
