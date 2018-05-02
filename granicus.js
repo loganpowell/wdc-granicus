@@ -1,30 +1,6 @@
 (function() {
     // Create the connector object
     var myConnector = tableau.makeConnector();
-    myConnector.init = function(initCallback) {
-        tableau.authType = tableau.authTypeEnum.basic;
-        // tableau.password = tableau.connectionData
-        console.log("tableau.password: " + tableau.password)
-        initCallback();
-    }
-
-    var dateObj = new Date(),
-    var month = dateObj.getUTCMonth() + 1, //jan = 0
-    var day = dateObj.getUTCDate(),
-    var year = dateObj.getUTCFullYear(),
-    var newdate = year + "-" + month + "-" + day;
-
-    var fortnightPrior = new Date(Date.now() - 12096e5),
-    var fnPmonth = fortnightPrior.getUTCMonth() + 1
-    var fnPday = fortnightPrior.getUTCDate(),
-    var fnPyear = fortnightPrior.getUTCFullYear(),
-    var fnPnewdate = fnPyear + "-" + fnPmonth + "-" + fnPday;
-
-    console.log({
-      "newdate" : newdate,
-      "fnPnewdate" : fnPnewdate
-    })
-
 
     // Define the schema
     myConnector.getSchema = function(schemaCallback) {
@@ -66,54 +42,74 @@
           }, {
               id: "deleted_subscriptions_to_date",
               dataType: tableau.dataTypeEnum.int
-          }]
-;
+          }];
 
-    var schemas = {
-        id: "Granicus_Subscriptions",
-        alias: `Granicus subscriptions, deletions and bulletins for start_date: ${fnPnewdate} - end_date: ${newdate}`,
-        columns: cols
-    };
-        schemaCallback([schemas]);
+        // var packages = tableau.connectionData.split(";")[0].replace(/\s+/g, '').split(',');
+
+        // schemas = packages.map(function(name){
+        //     return {
+        //         id: name,
+        //         alias: name,
+        //         columns: cols
+        //
+        //     }
+        // })
+        //
+        // schemaCallback(schemas);
+
+
+        var schemas = {
+            id: "Granicus_Subscriptions",
+            alias: `Granicus subscriptions, deletions and bulletins for start_date: ${fnPnewdate} - end_date: ${newdate}`,
+            columns: cols
+        };
+            schemaCallback([schemas]);
+        };
     };
 
     // Download the data
     myConnector.getData = function(table, doneCallback) {
-      tableau.log("inside `getData` tableau.password: " + tableau.password)
-        $.ajax({
-          url: "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date="+newdate+"&start_date="+fnPnewdate+"&page=1",
-          type: "GET",
-          headers: {
-            'content-type': 'application/json',
-            'x-auth-token': JSON.parse(tableau.password),
-            'accept': 'application/hal+json'
-          },
-          success: function(r) {
-            json = r.json()
-            var results = json.topic_details
-            tableData = []
-            for (var i = 0 var l = results.length; i < l; i++) {
-              tableData.push({
-                "code": results[i].code,
-                "name": results[i].name,
-                "visibility": results[i].visibility,
-                "bulletins_sent_this_period": results[i].bulletins_sent_this_period,
-                "bulletins_sent_to_date": results[i].bulletins_sent_to_date,
-                "deleted_subscriptions_this_period": results[i].deleted_subscriptions_this_period,
-                "deleted_subscriptions_to_date": results[i].deleted_subscriptions_to_date,
-                "new_subscriptions_this_period": results[i].new_subscriptions_this_period,
-                "new_subscriptions_to_date": results[i].new_subscriptions_to_date,
-                "total_subscriptions_to_date": results[i].total_subscriptions_to_date
-              })
-            }
-            table.appendRows(tableData)
+        var dateObj = new Date(),
+        var month = dateObj.getUTCMonth() + 1, //jan = 0
+        var day = dateObj.getUTCDate(),
+        var year = dateObj.getUTCFullYear(),
+        var newdate = year + "-" + month + "-" + day;
+
+        var fortnightPrior = new Date(Date.now() - 12096e5),
+        var fnPmonth = fortnightPrior.getUTCMonth() + 1
+        var fnPday = fortnightPrior.getUTCDate(),
+        var fnPyear = fortnightPrior.getUTCFullYear(),
+        var fnPnewdate = fnPyear + "-" + fnPmonth + "-" + fnPday;
+        // var dates = tableau.connectionData.split(';')[1];
+
+        var apiCall = "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date="+newdate+"&start_date="+fnPnewdate+"&page=1";
+
+        tableau.log("dates: " + dates);
+        tableau.log("api call: " + apiCall);
+
+        $.getJSON(apiCall, function(resp) {
+            tableau.log("resp: " + resp);
+            var results = resp.topic_details
+            // var dates = resp.downloads;
+
+            table.appendRows(results.map(function(result){
+                return {
+                  "code": result.code,
+                  "name": result.name,
+                  "visibility": result.visibility,
+                  "bulletins_sent_this_period": result.bulletins_sent_this_period,
+                  "bulletins_sent_to_date": result.bulletins_sent_to_date,
+                  "deleted_subscriptions_this_period": result.deleted_subscriptions_this_period,
+                  "deleted_subscriptions_to_date": result.deleted_subscriptions_to_date,
+                  "new_subscriptions_this_period": result.new_subscriptions_this_period,
+                  "new_subscriptions_to_date": result.new_subscriptions_to_date,
+                  "total_subscriptions_to_date": result.total_subscriptions_to_date
+                }
+            }));
             doneCallback();
-          },
-          error: function (xhr, ajaxOptions, thrownError) {
-            tableau.abortWithError("Unable to get data. Make sure you used proper API key");
-          }
-        })
-      }
+        });
+    };
+
 
     tableau.registerConnector(myConnector);
 
