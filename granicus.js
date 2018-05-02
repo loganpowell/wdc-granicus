@@ -1,7 +1,6 @@
 (function() {
     // Create the connector object
     var myConnector = tableau.makeConnector();
-    let key = ""
     myConnector.init = function(initCallback) {
         tableau.authType = tableau.authTypeEnum.basic;
         // tableau.password = tableau.connectionData
@@ -9,17 +8,17 @@
         initCallback();
     }
 
-    let dateObj = new Date(),
-        month = dateObj.getUTCMonth() + 1, //jan = 0
-        day = dateObj.getUTCDate(),
-        year = dateObj.getUTCFullYear(),
-        newdate = year + "-" + month + "-" + day;
+    var dateObj = new Date(),
+    var month = dateObj.getUTCMonth() + 1, //jan = 0
+    var day = dateObj.getUTCDate(),
+    var year = dateObj.getUTCFullYear(),
+    var newdate = year + "-" + month + "-" + day;
 
-    let fortnightPrior = new Date(Date.now() - 12096e5),
-        fnPmonth = fortnightPrior.getUTCMonth() + 1
-        fnPday = fortnightPrior.getUTCDate(),
-        fnPyear = fortnightPrior.getUTCFullYear(),
-        fnPnewdate = fnPyear + "-" + fnPmonth + "-" + fnPday;
+    var fortnightPrior = new Date(Date.now() - 12096e5),
+    var fnPmonth = fortnightPrior.getUTCMonth() + 1
+    var fnPday = fortnightPrior.getUTCDate(),
+    var fnPyear = fortnightPrior.getUTCFullYear(),
+    var fnPnewdate = fnPyear + "-" + fnPmonth + "-" + fnPday;
 
     console.log({
       "newdate" : newdate,
@@ -81,34 +80,40 @@
     // Download the data
     myConnector.getData = function(table, doneCallback) {
       tableau.log("inside `getData` tableau.password: " + tableau.password)
-      fetch(`https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date=${newdate}&start_date=${fnPnewdate}&page=1`, {
-        headers: {
-          'content-type': 'application/json',
-          'x-auth-token': tableau.password,
-          'accept': 'application/hal+json'
-         }
-      })
-      .then(r => r.json()).then(json => {
-        let results = json.topic_details
-        tableData = []
-        for (let i = 0, l = results.length; i < l; i++) {
-          tableData.push({
-            "code": results[i].code,
-            "name": results[i].name,
-            "visibility": results[i].visibility,
-            "bulletins_sent_this_period": results[i].bulletins_sent_this_period,
-            "bulletins_sent_to_date": results[i].bulletins_sent_to_date,
-            "deleted_subscriptions_this_period": results[i].deleted_subscriptions_this_period,
-            "deleted_subscriptions_to_date": results[i].deleted_subscriptions_to_date,
-            "new_subscriptions_this_period": results[i].new_subscriptions_this_period,
-            "new_subscriptions_to_date": results[i].new_subscriptions_to_date,
-            "total_subscriptions_to_date": results[i].total_subscriptions_to_date
-          })
-        }
-        table.appendRows(tableData)
-        doneCallback()
-      })
-    }
+        $.ajax({
+          url: "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date="+newdate+"&start_date="+fnPnewdate+"&page=1",
+          type: "GET",
+          headers: {
+            'content-type': 'application/json',
+            'x-auth-token': JSON.parse(tableau.password),
+            'accept': 'application/hal+json'
+          },
+          success: function(r) {
+            json = r.json()
+            var results = json.topic_details
+            tableData = []
+            for (var i = 0 var l = results.length; i < l; i++) {
+              tableData.push({
+                "code": results[i].code,
+                "name": results[i].name,
+                "visibility": results[i].visibility,
+                "bulletins_sent_this_period": results[i].bulletins_sent_this_period,
+                "bulletins_sent_to_date": results[i].bulletins_sent_to_date,
+                "deleted_subscriptions_this_period": results[i].deleted_subscriptions_this_period,
+                "deleted_subscriptions_to_date": results[i].deleted_subscriptions_to_date,
+                "new_subscriptions_this_period": results[i].new_subscriptions_this_period,
+                "new_subscriptions_to_date": results[i].new_subscriptions_to_date,
+                "total_subscriptions_to_date": results[i].total_subscriptions_to_date
+              })
+            }
+            table.appendRows(tableData)
+            doneCallback();
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            tableau.abortWithError("Unable to get data. Make sure you used proper API key");
+          }
+        })
+      }
 
     tableau.registerConnector(myConnector);
 
