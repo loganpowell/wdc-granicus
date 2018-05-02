@@ -1,11 +1,11 @@
 (function() {
     // Create the connector object
     var myConnector = tableau.makeConnector();
-    let key = ""
+    // let key = ""
     myConnector.init = function(initCallback) {
-        tableau.authType = tableau.authTypeEnum.basic;
-        key = tableau.connectionData
-        console.log("key: " + key)
+        // tableau.authType = tableau.authTypeEnum.basic;
+        // key = tableau.connectionData
+        // console.log("key: " + key)
         initCallback();
     }
 
@@ -80,6 +80,7 @@
 
     // Download the data
     myConnector.getData = function(table, doneCallback) {
+      let key = tableau.connectionData
       tableau.log("inside `getData` Key: " + key)
       fetch(`https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date=${newdate}&start_date=${fnPnewdate}&page=1`, {
         headers: {
