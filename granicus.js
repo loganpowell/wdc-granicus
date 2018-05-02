@@ -45,80 +45,84 @@ var tableauType = function(val) {
 
 
 (function () {
-    var myConnector = tableau.makeConnector();
-    myConnector.getSchema = function (schemaCallback) {
-        $.ajax({
-            url: "https://www.diggernaut.com/api/diggers" + JSON.parse(tableau.connectionData)['diggerID'] + "/sessions/last/data/one",
-            type: "GET",
-            headers: {
-                'Authorization': 'Token ' + JSON.parse(tableau.connectionData)['apiKey']
-            },
-            success: function(response){
-                var flatten = objectFlatten(response)
-                var columns = []
-                for (var key in flatten) {
-                    var id = key.replace(/[^A-Za-z0-9_]+/g, '')
-                    columns.push({
-                        id: id,
-                        alias: key,
-                        dataType: tableauType(flatten[key])
-                    })
-                }
-                var table = {
-                  id: "digger_" + JSON.parse(tableau.connectionData)['diggerID'],
-                  alias: tableau.connectionName,
-                  columns: columns
-                }
-                schemaCallback([table]);
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                tableau.abortWithError("Unable to get data. Make sure you used proper API key and you have at least one session for selected digger with dataset.");
-            }
-        });
+  var myConnector = tableau.makeConnector();
+  myConnector.getSchema = function (schemaCallback) {
+    $.ajax({
+        url: `https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date=${newdate}&start_date=${fnPnewdate}&page=1`,
+        type: "GET",
+        headers: {
+          'content-type': 'application/json',
+          'x-auth-token': JSON.parse(tableau.connectionData)['apiKey'],
+          'accept': 'application/hal+json'
+        },
+        success: function(response){
+          var flatten = objectFlatten(response)
+          var columns = []
+          for (var key in flatten) {
+            var id = key.replace(/[^A-Za-z0-9_]+/g, '')
+            columns.push({
+              id: id,
+              alias: key,
+              dataType: tableauType(flatten[key])
+            })
+          }
+          var table = {
+            id: "Granicus_Subscriptions",
+            alias: `Granicus subscriptions, deletions and bulletins for start_date: ${fnPnewdate} - end_date: ${newdate}`,
+            columns: columns
+          }
+          schemaCallback([table]);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            tableau.abortWithError("Unable to get data. Make sure you used proper API key and you have at least one session for selected digger with dataset.");
+        }
+      });
     };
     myConnector.getData = function (table, doneCallback) {
-        $.ajax({
-            url: "https://www.diggernaut.com/api/diggers" + JSON.parse(tableau.connectionData)['diggerID'] + "/sessions/last/data",
-            type: "GET",
-            headers: {
-                'Authorization': 'Token ' + JSON.parse(tableau.connectionData)['apiKey']
-            },
-            success: function(response){
-                var data = []
-                for (var i=0; i < response.length; i++) {
-                    var flatten = objectFlatten(response[i])
-                    var rec = {}
-                    for (var key in flatten) {
-                        var id = key.replace(/[^A-Za-z0-9_]+/g, '')
-                        rec[id] = flatten[key]
-                    }
-                    data.push(rec)
-                }
-                table.appendRows(data);
-                doneCallback();
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                tableau.abortWithError("Unable to get data. Make sure you used proper API key and you have at least one session for selected digger with dataset.");
+      $.ajax({
+        url: `https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date=${newdate}&start_date=${fnPnewdate}&page=1`,
+        type: "GET",
+        headers: {
+          'content-type': 'application/json',
+          'x-auth-token': JSON.parse(tableau.connectionData)['apiKey'],
+          'accept': 'application/hal+json'
+        },
+        success: function(response){
+          var data = []
+          for (var i=0; i < response.length; i++) {
+            var flatten = objectFlatten(response[i])
+            var rec = {}
+            for (var key in flatten) {
+              var id = key.replace(/[^A-Za-z0-9_]+/g, '')
+              rec[id] = flatten[key]
             }
-        });
+            data.push(rec)
+          }
+          table.appendRows(data);
+          doneCallback();
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          tableau.abortWithError("Unable to get data. Make sure you used proper API key and you have at least one session for selected digger with dataset.");
+        }
+      });
     };
     tableau.registerConnector(myConnector);
 
     var Digger = Backbone.Model.extend();
     var DiggersCollection = Backbone.Collection.extend({
-        url: 'https://www.diggernaut.com/api/diggers',
-        model: Digger
+      url: 'https://www.diggernaut.com/api/diggers',
+      model: Digger
     });
     var DiggerItem = Backbone.View.extend({
-        tagName: "option",
-        initialize: function(){
-            _.bindAll(this, 'render');
-            this.model.bind('change', this.render);
-        },
-        render: function(){
-            this.$el.attr('value', this.model.get('id')).text(this.model.get('name'));
-            return this;
-        }
+      tagName: "option",
+      initialize: function(){
+        _.bindAll(this, 'render');
+        this.model.bind('change', this.render);
+      },
+      render: function(){
+        this.$el.attr('value', this.model.get('id')).text(this.model.get('name'));
+        return this;
+      }
     });
     var DiggersView = Backbone.View.extend({
         collection: null,
@@ -138,14 +142,14 @@ var tableauType = function(val) {
                 });
                 element.append(diggerItem.render().$el);
             });
-            $('#loadDiggersPanel').hide();
+            $('#loadDataPanel').hide();
             $('#connectPanel').show();
             return this;
         }
     });
 
     $(document).ready(function () {
-        $("#loadDiggers").click(function () {
+        $("#loadData").click(function () {
             $('.apiKeyInvalid').hide();
 
             var diggers = new DiggersCollection();
@@ -153,7 +157,7 @@ var tableauType = function(val) {
             diggers.fetch({
                 headers: {
                   'Authorization': 'Token ' + $("#apiKey").val()
-                } 
+                }
             });
 
         });
