@@ -63,9 +63,8 @@
             alias: "Granicus subscriptions, deletions and bulletins for start_date: "+ fnPnewdate + " - end_date: " + newdate,
             columns: cols
         };
-            schemaCallback([schemas]);
-        };
-    };
+        schemaCallback([schemas]);
+      }
 
     // Download the data
     myConnector.getData = function(table, doneCallback) {
