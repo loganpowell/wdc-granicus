@@ -110,7 +110,7 @@ var tableauType = function(val) {
 
     var Digger = Backbone.Model.extend();
     var DiggersCollection = Backbone.Collection.extend({
-      url: 'https://www.diggernaut.com/api/diggers',
+      url: 'https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2',
       model: Digger
     });
     var DiggerItem = Backbone.View.extend({
