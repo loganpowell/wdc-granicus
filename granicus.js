@@ -2,6 +2,18 @@
     // Create the connector object
     var myConnector = tableau.makeConnector();
 
+    var dateObj = new Date()
+    var month = dateObj.getUTCMonth() + 1 //jan = 0
+    var day = dateObj.getUTCDate()
+    var year = dateObj.getUTCFullYear()
+    var newdate = year + "-" + month + "-" + day;
+
+    var fortnightPrior = new Date(Date.now() - 12096e5)
+    var fnPmonth = fortnightPrior.getUTCMonth() + 1
+    var fnPday = fortnightPrior.getUTCDate()
+    var fnPyear = fortnightPrior.getUTCFullYear()
+    var fnPnewdate = fnPyear + "-" + fnPmonth + "-" + fnPday;
+
     // Define the schema
     myConnector.getSchema = function(schemaCallback) {
         var cols = [{
@@ -68,46 +80,46 @@
 
     // Download the data
     myConnector.getData = function(table, doneCallback) {
-        var dateObj = new Date()
-        var month = dateObj.getUTCMonth() + 1 //jan = 0
-        var day = dateObj.getUTCDate()
-        var year = dateObj.getUTCFullYear()
-        var newdate = year + "-" + month + "-" + day;
-
-        var fortnightPrior = new Date(Date.now() - 12096e5)
-        var fnPmonth = fortnightPrior.getUTCMonth() + 1
-        var fnPday = fortnightPrior.getUTCDate()
-        var fnPyear = fortnightPrior.getUTCFullYear()
-        var fnPnewdate = fnPyear + "-" + fnPmonth + "-" + fnPday;
         // var dates = tableau.connectionData.split(';')[1];
 
-        var apiCall = "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date="+newdate+"&start_date="+fnPnewdate+"&page=1";
+      var apiCall = "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date="+newdate+"&start_date="+fnPnewdate+"&page=1";
 
-        tableau.log("dates: " + dates);
-        tableau.log("api call: " + apiCall);
+      // tableau.log("dates: " + dates);
+      tableau.log("api call: " + apiCall);
 
-        $.getJSON(apiCall, function(resp) {
+      $.ajax({
+          url: apiCall,
+          type: 'GET',
+          dataType: 'json',
+          success:function(resp) {
             tableau.log("resp: " + resp);
             var results = resp.topic_details
-            // var dates = resp.downloads;
-
             table.appendRows(results.map(function(result){
-                return {
-                  "code": result.code,
-                  "name": result.name,
-                  "visibility": result.visibility,
-                  "bulletins_sent_this_period": result.bulletins_sent_this_period,
-                  "bulletins_sent_to_date": result.bulletins_sent_to_date,
-                  "deleted_subscriptions_this_period": result.deleted_subscriptions_this_period,
-                  "deleted_subscriptions_to_date": result.deleted_subscriptions_to_date,
-                  "new_subscriptions_this_period": result.new_subscriptions_this_period,
-                  "new_subscriptions_to_date": result.new_subscriptions_to_date,
-                  "total_subscriptions_to_date": result.total_subscriptions_to_date
-                }
-            }));
-            doneCallback();
-        });
-    };
+              return {
+                "code": result.code,
+                "name": result.name,
+                "visibility": result.visibility,
+                "bulletins_sent_this_period": result.bulletins_sent_this_period,
+                "bulletins_sent_to_date": result.bulletins_sent_to_date,
+                "deleted_subscriptions_this_period": result.deleted_subscriptions_this_period,
+                "deleted_subscriptions_to_date": result.deleted_subscriptions_to_date,
+                "new_subscriptions_this_period": result.new_subscriptions_this_period,
+                "new_subscriptions_to_date": result.new_subscriptions_to_date,
+                "total_subscriptions_to_date": result.total_subscriptions_to_date
+              }
+            }))
+            doneCallback()
+          },
+          error: function() { console.log('error in ajax call!'); },
+          beforeSend: setHeader
+      })
+    }
+
+    function setHeader(xhr) {
+      xhr.setRequestHeader('content-type', 'application/json');
+      xhr.setRequestHeader('x-auth-token', tableau.password);
+      xhr.setRequestHeader('accept', 'application/hal+json');
+    }
 
 
     tableau.registerConnector(myConnector);
