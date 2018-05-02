@@ -48,7 +48,7 @@ var tableauType = function(val) {
   var myConnector = tableau.makeConnector();
   myConnector.getSchema = function (schemaCallback) {
     $.ajax({
-        url: `https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date=${newdate}&start_date=${fnPnewdate}&page=1`,
+        url: "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date="+newdate+"&start_date="+fnPnewdate+"&page=1",
         type: "GET",
         headers: {
           'content-type': 'application/json',
@@ -80,7 +80,7 @@ var tableauType = function(val) {
     };
     myConnector.getData = function (table, doneCallback) {
       $.ajax({
-        url: `https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date=${newdate}&start_date=${fnPnewdate}&page=1`,
+        url: "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date="+newdate+"&start_date="+fnPnewdate+"&page=1",
         type: "GET",
         headers: {
           'content-type': 'application/json',
