@@ -6,7 +6,7 @@
   var location = window.location;
   var hashString = String(location.hash)
   var page = hashString.replace("#", "")
-  console.log("page: " page)
+  console.log("page: " + page)
     // console.log("console.log => location: " + location)
     // console.log("hash => " + location.hash)
     // console.log("host => " + location.host)
@@ -173,7 +173,7 @@ reload => function reload() {\n    [native code]\n}
       newdate +
       "&start_date=" +
       fnPnewdate +
-      "&page="  + 
+      "&page="  +
       page;
 
     // tableau.log("dates: " + dates);
