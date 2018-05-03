@@ -3,10 +3,10 @@
   var myConnector = tableau.makeConnector();
 
   // get path from URL
-  var location = window.location;
-  var hashString = String(location.hash)
-  var page = hashString.replace("#", "")
-  console.log("page: " + page)
+  // var location = window.location;
+  // var hashString = String(location.hash)
+  // var page = hashString.replace("#", "")
+  // console.log("page: " + page)
     // console.log("console.log => location: " + location)
     // console.log("hash => " + location.hash)
     // console.log("host => " + location.host)
@@ -170,7 +170,7 @@ reload => function reload() {\n    [native code]\n}
 
     var apiCall =
       "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date=" +
-      newdate + "&start_date=" + fnPnewdate + "&page=" + page;
+      newdate + "&start_date=" + fnPnewdate + "&page=" + JSON.parse(tableau.connectionData)['page'];
 
     // tableau.log("dates: " + dates);
     tableau.log("api call: " + apiCall);
@@ -221,6 +221,13 @@ reload => function reload() {\n    [native code]\n}
   // Create event listeners for when the user submits the form
   $(document).ready(function() {
     $("#submitButton").click(function() {
+      var location = window.location;
+      var hashString = String(location.hash)
+      var page = hashString.replace("#", "")
+
+      // console.log("page: " + page)
+
+      tableau.connectionData = JSON.stringify({'page': page})
       var key = $("#key").val();
       if (key) {
         tableau.password = key; // Use this variable to pass data to your getSchema and getData functions
