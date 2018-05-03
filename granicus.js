@@ -3,7 +3,7 @@
     var myConnector = tableau.makeConnector();
 
     // get path from URL
-    var path = location.pathname
+    var path = window.location.pathname
     alert(path)
 
     var dateObj = new Date()
