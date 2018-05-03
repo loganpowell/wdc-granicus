@@ -170,11 +170,7 @@ reload => function reload() {\n    [native code]\n}
 
     var apiCall =
       "https://cors-anywhere.herokuapp.com/https://api.govdelivery.com/api/v2/accounts/11723/reports/topics?end_date=" +
-      newdate +
-      "&start_date=" +
-      fnPnewdate +
-      "&page="  +
-      page;
+      newdate + "&start_date=" + fnPnewdate + "&page=" + page;
 
     // tableau.log("dates: " + dates);
     tableau.log("api call: " + apiCall);
