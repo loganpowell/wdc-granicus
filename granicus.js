@@ -4,7 +4,7 @@
 
     // get path from URL
     var path = location
-    console.log(path)
+    alert(path)
 
     var dateObj = new Date()
     var month = dateObj.getUTCMonth() + 1 //jan = 0
