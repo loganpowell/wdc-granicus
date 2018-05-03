@@ -221,13 +221,15 @@ reload => function reload() {\n    [native code]\n}
   // Create event listeners for when the user submits the form
   $(document).ready(function() {
     $("#submitButton").click(function() {
-      var location = window.location;
-      var hashString = String(location.hash)
-      var page = hashString.replace("#", "")
+      // var location = window.location;
+      // var hashString = String(location.hash)
+      // var page = hashString.replace("#", "")
 
       // console.log("page: " + page)
 
-      tableau.connectionData = JSON.stringify({'page': page})
+      tableau.connectionData = JSON.stringify({
+        'page': $("#page").val()
+      })
       var key = $("#key").val();
       if (key) {
         tableau.password = key; // Use this variable to pass data to your getSchema and getData functions
