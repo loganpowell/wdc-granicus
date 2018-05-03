@@ -2,6 +2,10 @@
     // Create the connector object
     var myConnector = tableau.makeConnector();
 
+    // get path from URL
+    var path = location
+    console.log(path)
+
     var dateObj = new Date()
     var month = dateObj.getUTCMonth() + 1 //jan = 0
     var day = dateObj.getUTCDate()
@@ -55,20 +59,6 @@
               id: "deleted_subscriptions_to_date",
               dataType: tableau.dataTypeEnum.int
           }];
-
-        // var packages = tableau.connectionData.split(";")[0].replace(/\s+/g, '').split(',');
-
-        // schemas = packages.map(function(name){
-        //     return {
-        //         id: name,
-        //         alias: name,
-        //         columns: cols
-        //
-        //     }
-        // })
-        //
-        // schemaCallback(schemas);
-
 
         var schemas = {
             id: "Granicus_Subscriptions",
