@@ -4,20 +4,18 @@
 
   // get path from URL
   var location = window.location;
-  console.log({
-    "console.log => location: " : location,
-    "hash: => " : location.hash,
-    "host: => " : location.host,
-    "hostname: => " : location.hostname,
-    "href: => " : location.href,
-    "pathname: => " : location.pathname,
-    "port: => " : location.port,
-    "protocol: => " : location.protocol,
-    "search: => " : location.search,
-    "replace: => " : location.replace,
-    "assign: => " : location.assign,
-    "reload: => " : location.reload
-  });
+    console.log("console.log => location: " : location)
+    console.log("hash: => " : location.hash)
+    console.log("host: => " : location.host)
+    console.log("hostname: => " : location.hostname)
+    console.log("href: => " : location.href)
+    console.log("pathname: => " : location.pathname)
+    console.log("port: => " : location.port)
+    console.log("protocol: => " : location.protocol)
+    console.log("search: => " : location.search)
+    console.log("replace: => " : location.replace)
+    console.log("assign: => " : location.assign)
+    console.log("reload: => " : location.reload)
 
 /*
 location object:
