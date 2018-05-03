@@ -4,7 +4,8 @@
 
     // get path from URL
     var path = window.location.pathname
-    alert(path)
+    tableau.log("path: " + path)
+    console.log("path: " + path)
 
     var dateObj = new Date()
     var month = dateObj.getUTCMonth() + 1 //jan = 0
