@@ -4,18 +4,21 @@
 
   // get path from URL
   var location = window.location;
-    console.log("console.log => location: " + location)
-    console.log("hash => " + location.hash)
-    console.log("host => " + location.host)
-    console.log("hostname => " + location.hostname)
-    console.log("href => " + location.href)
-    console.log("pathname => " + location.pathname)
-    console.log("port => " + location.port)
-    console.log("protocol => " + location.protocol)
-    console.log("search => " + location.search)
-    console.log("replace => " + location.replace)
-    console.log("assign => " + location.assign)
-    console.log("reload => " + location.reload)
+  var hashString = String(location.hash)
+  var page = hashString.replace("#", "")
+  console.log("page: " page)
+    // console.log("console.log => location: " + location)
+    // console.log("hash => " + location.hash)
+    // console.log("host => " + location.host)
+    // console.log("hostname => " + location.hostname)
+    // console.log("href => " + location.href)
+    // console.log("pathname => " + location.pathname)
+    // console.log("port => " + location.port)
+    // console.log("protocol => " + location.protocol)
+    // console.log("search => " + location.search)
+    // console.log("replace => " + location.replace)
+    // console.log("assign => " + location.assign)
+    // console.log("reload => " + location.reload)
 
 /*
 location object:
@@ -36,7 +39,52 @@ window.location = {
 
 log.txt file
 
-{"ts":"2018-05-03T07:45:38.520","pid":3436,"tid":"427c","sev":"info","req":"-","sess":"-","site":"{EEA50E25-45AF-4CA2-ACC4-B7FF6E1DFA1E}","user":"-","k":"web-data-connector","v":"https://loganpowell.github.io/wdc-granicus/granicus.js:8 -- console.log => path: /wdc-granicus/"}
+HASHLESS:
+
+console.log => location:
+hash =>
+host => loganpowell.github.io
+hostname => loganpowell.github.io
+href => https://loganpowell.github.io/wdc-granicus/index.html?testing-location&parameters:with-colons%20spaces=and?querys=reques
+pathname => /wdc-granicus/index.html
+port =>
+protocol => https:
+search => ?testing-location&parameters:with-colons%20spaces=and?querys=request
+replace => function replace() {\n    [native code]\n}
+assign => function assign() {\n    [native code]\n}
+reload => function reload() {\n    [native code]\n}
+
+
+HASH IN CENTER OF URL:
+
+console.log => location:
+hash => #hash&parameters:with-colons%20spaces=and?querys=request
+host => loganpowell.github.io
+hostname => loganpowell.github.io
+href => https://loganpowell.github.io/wdc-granicus/index.html?testing-location#hash&parameters:with-colons%20spaces=and?querys=request
+pathname => /wdc-granicus/index.html
+port =>
+protocol => https:
+search => ?testing-location
+replace => function replace() {\n    [native code]\n}
+assign => function assign() {\n    [native code]\n}
+reload => function reload() {\n    [native code]\n}
+
+HASH AT END OF Url:
+
+log => location:
+hash => #hash
+host => loganpowell.github.io
+hostname => loganpowell.github.io
+href => https://loganpowell.github.io/wdc-granicus/index.html?testing-location&parameters:with-colons%20spaces=and?querys=request#hash
+pathname => /wdc-granicus/index.html
+port =>
+protocol => https:
+search => ?testing-location&parameters:with-colons%20spaces=and?querys=request
+replace => function replace() {\n    [native code]\n}
+assign => function assign() {\n    [native code]\n}
+reload => function reload() {\n    [native code]\n}
+
 */
 
   var dateObj = new Date();
@@ -125,7 +173,8 @@ log.txt file
       newdate +
       "&start_date=" +
       fnPnewdate +
-      "&page=1";
+      "&page="  + 
+      page;
 
     // tableau.log("dates: " + dates);
     tableau.log("api call: " + apiCall);
